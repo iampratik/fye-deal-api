@@ -10,20 +10,37 @@ const archived = false;
 
 
 async function getDeals() {
-  try {
-    const apiResponse = await hubspotClient.crm.deals.basicApi.getPage(limit, after, properties, propertiesWithHistory, associations, archived);
-    return new Promise(resolve => {
-      resolve(apiResponse.results, null, 2);
-    });
-  } catch (e) {
-    e.message === 'HTTP request failed'
-      ? console.error(JSON.stringify(e.response, null, 2))
-      : console.error(e)
-  }
+    try {
+        let apiResponse = await hubspotClient.crm.deals.basicApi.getPage(limit, after, properties, propertiesWithHistory, associations, archived);
+        let nextPagination = apiResponse['paging']['next']['after'];
+
+        let customResponse = [];
+        customResponse = apiResponse.results;
+
+        do {
+            let _after = apiResponse.paging.after;
+            apiResponse = await hubspotClient.crm.deals.basicApi.getPage(limit, nextPagination, properties, propertiesWithHistory, associations, archived);
+            apiResponse.results.map((val) => {
+                customResponse.push(val)
+            })
+            if (apiResponse['paging'] !== undefined) {
+                nextPagination = apiResponse['paging']['next']['after'];;
+            } else {
+                nextPagination = false;
+            }
+            console.log(nextPagination);
+        }
+        while (nextPagination);
+
+        return new Promise(resolve => {
+            resolve(customResponse, null, 2);
+        });
+    } catch (e) {
+        e.message === 'HTTP request failed' ?
+            console.error(JSON.stringify(e.response, null, 2)) :
+            console.error(e)
+    }
 }
 
 
 module.exports = getDeals;
-
-
-

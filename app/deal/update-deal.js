@@ -15,7 +15,6 @@ function generate_string(length) {
 
 async function updateDeal() {
     const a = await getDeal();
-    console.log(a);
 
     let prepareBath = [];
     a.forEach(element => {
@@ -31,9 +30,9 @@ async function updateDeal() {
             resolve(apiResponse.results, null, 2);
         });
     } catch (e) {
-        e.message === 'HTTP request failed'
-            ? console.error(JSON.stringify(e.response, null, 2))
-            : console.error(e)
+        e.message === 'HTTP request failed' ?
+            console.error(JSON.stringify(e.response, null, 2)) :
+            console.error(e)
     }
 }
 
